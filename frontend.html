@@ -133,11 +133,15 @@
             });
             if (!response.ok) throw new Error("Prediction failed");
             const result = await response.json();
-            document.getElementById(
-              "result"
-            ).textContent = `Fraud Likelihood: ${(
+            document.getElementById("result").innerHTML = `Fraud Likelihood: ${(
               result.fraud_likelihood * 100
-            ).toFixed(2)}%`;
+            ).toFixed(2)}%<br><span id="inference"></span>`;
+            // Provide inference based on threshold (e.g., 0.5)
+            const inference =
+              result.fraud_likelihood >= 0.7
+                ? "⚠️ This claim is likely fraudulent."
+                : "✅ This claim is likely genuine.";
+            document.getElementById("inference").textContent = inference;
           } catch (err) {
             document.getElementById("result").textContent =
               "Error: " + err.message;
