@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Insurance Fraud Detection</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f4f6fa;
+        margin: 0;
+        padding: 0;
+      }
+      .container {
+        max-width: 400px;
+        margin: 40px auto;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px #0001;
+        padding: 32px;
+      }
+      h2 {
+        text-align: center;
+        color: #2c3e50;
+      }
+      label {
+        display: block;
+        margin-top: 16px;
+        color: #34495e;
+      }
+      input,
+      select {
+        width: 100%;
+        padding: 8px;
+        margin-top: 4px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+      }
+      button {
+        margin-top: 24px;
+        width: 100%;
+        padding: 12px;
+        background: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        font-size: 16px;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #0056b3;
+      }
+      .result {
+        margin-top: 24px;
+        text-align: center;
+        font-size: 18px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Insurance Fraud Detection</h2>
+      <form id="fraudForm">
+        <label for="claim_amount">Claim Amount</label>
+        <input
+          type="number"
+          id="claim_amount"
+          name="claim_amount"
+          required
+          step="0.01"
+        />
+
+        <label for="customer_avg_claim">Customer Avg Claim</label>
+        <input
+          type="number"
+          id="customer_avg_claim"
+          name="customer_avg_claim"
+          required
+          step="0.01"
+        />
+
+        <label for="customer_history">Customer History</label>
+        <input
+          type="number"
+          id="customer_history"
+          name="customer_history"
+          required
+          step="1"
+        />
+
+        <label for="submission_channel">Submission Channel</label>
+        <select id="submission_channel" name="submission_channel" required>
+          <option value="online">Online</option>
+          <option value="agent">Agent</option>
+        </select>
+
+        <label for="document_type">Document Type</label>
+        <select id="document_type" name="document_type" required>
+          <option value="pdf">PDF</option>
+          <option value="scan">Scan</option>
+          <option value="photo">Photo</option>
+        </select>
+
+        <button type="submit">Predict Fraud Likelihood</button>
+      </form>
+      <div class="result" id="result"></div>
+    </div>
+    <script>
+      document
+        .getElementById("fraudForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+          const data = {
+            claim_amount: parseFloat(
+              document.getElementById("claim_amount").value
+            ),
+            customer_avg_claim: parseFloat(
+              document.getElementById("customer_avg_claim").value
+            ),
+            customer_history: parseInt(
+              document.getElementById("customer_history").value
+            ),
+            submission_channel:
+              document.getElementById("submission_channel").value,
+            document_type: document.getElementById("document_type").value,
+          };
+          document.getElementById("result").textContent = "Predicting...";
+          try {
+            const response = await fetch("http://localhost:8000/predict", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(data),
+            });
+            if (!response.ok) throw new Error("Prediction failed");
+            const result = await response.json();
+            document.getElementById(
+              "result"
+            ).textContent = `Fraud Likelihood: ${(
+              result.fraud_likelihood * 100
+            ).toFixed(2)}%`;
+          } catch (err) {
+            document.getElementById("result").textContent =
+              "Error: " + err.message;
+          }
+        });
+    </script>
+  </body>
+</html>
